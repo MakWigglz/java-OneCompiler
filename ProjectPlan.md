@@ -1,20 +1,12 @@
-# To restructure your code to work with the web editor setup we discussed earlier. We'll split the code into multiple files and update the `build.gradle` file to include the necessary dependencies.
+## To restructure your code to work with the web editor setup we discussed earlier. We'll split the code into multiple files and update the `build.gradle` file to include the necessary dependencies.
 
-1. Main Java file:
 
-**File: /HelloWorld.java**
+
+## File: /EconomicIndicatorsMain.java**
 ```java
 import com.github.MakWigglz.economicIndicators.EconomicIndicatorsApp;
 
-public class Certainly! I'll restructure your code to work with the web editor setup we discussed earlier. We'll split the code into multiple files and update the `build.gradle` file to include the necessary dependencies.
-
-1. Main Java file:
-
-**File: /HelloWorld.java**
-```java
-import com.github.MakWigglz.economicIndicators.EconomicIndicatorsApp;
-
-public class HelloWorld {
+public class EconomicIndicatorsMain {
     public static void main(String[] args) {
         EconomicIndicatorsApp.main(args);
     }
@@ -49,20 +41,7 @@ public class EconomicIndicatorsApp {
             System.out.println("Unemployment Data: " + unemploymentData);
 
             String inflationData = WorldBank.fetchData("FP.CPI.TOTL.ZG", "US", 2013, 2023);
-            Certainly! I'll restructure the code to work with the web editor setup we discussed earlier. We'll split the code into multiple files and update the `build.gradle` file to include the necessary dependencies.
-
-1. Main Java file:
-
-**File: /HelloWorld.java**
-```java
-import com.github.MakWigglz.economicIndicators.EconomicIndicatorsApp;
-
-public class HelloWorld {
-    public static void main(String[] args) {
-        EconomicIndicatorsApp.main(args);
-    }
-}
-```
+            
 
 2. EconomicIndicatorsApp file:
 
@@ -213,9 +192,10 @@ public class WorldBank {
 5. Gradle build file:
 
 **File: /build.gradle**
+**File: /build.gradle**
 ```groovy
 apply plugin: 'application'
-mainClassName = 'HelloWorld'
+mainClassName = 'EconomicIndicatorsMain'
 
 run { standardInput = System.in }
 sourceSets { main { java { srcDir './' } } }
@@ -231,7 +211,7 @@ dependencies {
 
 This structure separates the code into multiple files for better organization:
 
-1. `HelloWorld.java` is the entry point of the application.
+1. The Main Java Class file  is the entry point of the application.
 2. `EconomicIndicatorsApp.java` contains the main logic for fetching economic indicators.
 3. `Config.java` manages the configuration and API keys.
 4. `WorldBank.java` handles fetching data from the World Bank API.
@@ -244,3 +224,28 @@ To use this setup:
 3. Run the project using the "Run" button in the web editor.
 
 This structure allows you to organize your code better, use external dependencies (JSON library in this case), and make API calls to various economic data sources.
+
+
+## Certainly! We can change the class name from "HelloWorld" to something more descriptive for your project. Let's rename it to "EconomicIndicatorsMain". Here are the changes:
+
+1. Rename the main Java file:
+
+
+
+2. Update the Gradle build file to reflect the new main class name:
+
+
+
+The rest of the files (EconomicIndicatorsApp.java, Config.java, and WorldBank.java) remain the same as in the previous response.
+
+This change makes the main class name more descriptive and relevant to your project. The EconomicIndicatorsMain class serves as the entry point for your application, and it calls the main method of the EconomicIndicatorsApp class.
+
+To use this updated setup:
+
+1. Rename the "HelloWorld.java" file to "EconomicIndicatorsMain.java" in the web editor.
+2. Update the content of "EconomicIndicatorsMain.java" with the provided code.
+3. Update the "build.gradle" file with the new content, particularly the `mainClassName` line.
+4. Make sure all other files (EconomicIndicatorsApp.java, Config.java, and WorldBank.java) are present and contain the correct code as provided earlier.
+5. Run the project using the "Run" button in the web editor.
+
+This structure maintains the organization of your code while using a more appropriate name for the main class.
