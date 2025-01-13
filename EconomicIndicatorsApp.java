@@ -1,68 +1,51 @@
-import java.net.URI;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class EconomicIndicatorsApp {
-    private static final String WORLD_BANK_API_URL = "http://api.worldbank.org/v2";
-
     public static void main(String[] args) {
-        try {
-            // Fetch GDP data
-            String gdpData = fetchWorldBankData("NY.GDP.MKTP.CD", "US", 2013, 2023);
-            System.out.println("GDP Data: " + gdpData);
+        // Generate mock data
+        List<EconomicData> gdpData = generateMockData("GDP", 2013, 2023);
+        List<EconomicData> unemploymentData = generateMockData("Unemployment", 2013, 2023);
+        List<EconomicData> inflationData = generateMockData("Inflation", 2013, 2023);
 
-            // Fetch other economic indicators
-            String unemploymentData = fetchWorldBankData("SL.UEM.TOTL.ZS", "US", 2013, 2023);
-            System.out.println("Unemployment Data: " + unemploymentData);
+        // Print the data
+        System.out.println("GDP Data: " + gdpData);
+        System.out.println("Unemployment Data: " + unemploymentData);
+        System.out.println("Inflation Data: " + inflationData);
 
-            String inflationData = fetchWorldBankData("FP.CPI.TOTL.ZG", "US", 2013, 2023);
-            System.out.println("Inflation Data: " + inflationData);
-
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
-            e.printStackTrace();
-        }
+        // TODO: Add data manipulation and visualization code here
     }
 
-    public static String fetchWorldBankData(String indicator, String country, int startYear, int endYear) throws Exception {
-        String urlString = String.format("%s/country/%s/indicator/%s?date=%d:%d&format=json",
-                WORLD_BANK_API_URL, country, indicator, startYear, endYear);
-        try {
-            return fetchData(urlString);
-        } catch (Exception e) {
-            System.out.println("Error fetching data from World Bank API. Using mock data.");
-            return getMockData(indicator);
+    private static List<EconomicData> generateMockData(String indicator, int startYear, int endYear) {
+        List<EconomicData> data = new ArrayList<>();
+        Random random = new Random();
+
+        for (int year = startYear; year <= endYear; year++) {
+            double value = switch (indicator) {
+                case "GDP" -> 18000 + random.nextDouble() * 5000; // GDP in billions
+                case "Unemployment" -> 3 + random.nextDouble() * 5; // Unemployment rate 3-8%
+                case "Inflation" -> 1 + random.nextDouble() * 3; // Inflation rate 1-4%
+                default -> random.nextDouble() * 100;
+            };
+            data.add(new EconomicData(year, value));
         }
+
+        return data;
     }
 
-    public static String fetchData(String urlString) throws Exception {
-        URI uri = new URI(urlString);
-        HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-        connection.setRequestMethod("GET");
-        
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            String inputLine;
-            StringBuilder content = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                content.append(inputLine);
-            }
-            return content.toString();
-        } finally {
-            connection.disconnect();
-        }
-    }
+    static class EconomicData {
+        int year;
+        double value;
 
-    private static String getMockData(String indicator) {
-        switch (indicator) {
-            case "NY.GDP.MKTP.CD":
-                return "[{\"indicator\":{\"id\":\"NY.GDP.MKTP.CD\",\"value\":\"GDP (current US$)\"},\"country\":{\"id\":\"US\",\"value\":\"United States\"},\"value\":21433226000000,\"decimal\":0,\"date\":\"2023\"}]";
-            case "SL.UEM.TOTL.ZS":
-                return "[{\"indicator\":{\"id\":\"SL.UEM.TOTL.ZS\",\"value\":\"Unemployment, total (% of total labor force) (modeled ILO estimate)\"},\"country\":{\"id\":\"US\",\"value\":\"United States\"},\"value\":3.6,\"decimal\":1,\"date\":\"2023\"}]";
-            case "FP.CPI.TOTL.ZG":
-                return "[{\"indicator\":{\"id\":\"FP.CPI.TOTL.ZG\",\"value\":\"Inflation, consumer prices (annual %)\"},\"country\":{\"id\":\"US\",\"value\":\"United States\"},\"value\":4.1,\"decimal\":1,\"date\":\"2023\"}]";
-            default:
-                return "[]";
+        EconomicData(int year, double value) {
+            this.year = year;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Year: %d, Value: %.2f", year, value);
         }
     }
 }
