@@ -1,0 +1,13 @@
+apply plugin: 'application'
+mainClassName = 'EconomicIndicatorsMain'
+
+run { standardInput = System.in }
+sourceSets { main { java { srcDir './' } } }
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.json:json:20210307'
+}

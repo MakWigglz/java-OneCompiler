@@ -15,32 +15,7 @@ public class EconomicIndicatorsMain {
 
 2. EconomicIndicatorsApp file:
 
-**File: /com/github/MakWigglz/economicIndicators/EconomicIndicatorsApp.java**
-```java
-package com.github.MakWigglz.economicIndicators;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-public class EconomicIndicatorsApp {
-    private static final String ALPHA_VANTAGE_API_URL = "https://www.alphavantage.co/query";
-    private static final String FRED_API_URL = "https://api.stlouisfed.org/fred/series/observations";
-
-    public static void main(String[] args) {
-        try {
-            Config config = Config.getInstance();
-
-            // Fetch GDP data
-            String gdpData = WorldBank.fetchData("NY.GDP.MKTP.CD", "US", 2013, 2023);
-            System.out.println("GDP Data: " + gdpData);
-
-            // Fetch other economic indicators
-            String unemploymentData = WorldBank.fetchData("SL.UEM.TOTL.ZS", "US", 2013, 2023);
-            System.out.println("Unemployment Data: " + unemploymentData);
-
-            String inflationData = WorldBank.fetchData("FP.CPI.TOTL.ZG", "US", 2013, 2023);
             
 
 2. EconomicIndicatorsApp file:
@@ -249,3 +224,69 @@ To use this updated setup:
 5. Run the project using the "Run" button in the web editor.
 
 This structure maintains the organization of your code while using a more appropriate name for the main class.
+Based on the provided `build.gradle` file and the context you've given, it seems that this project is already set up as a Gradle project, which is a good start for structuring your code. However, for better organization and to follow Java conventions, it would be beneficial to structure your code as a package, even for a OneCompiler environment.
+
+Here's what I recommend:
+
+1. Create a package structure: Even in OneCompiler, you can create a package structure by adding a package declaration at the top of your Java files.
+
+2. Update the `build.gradle` file to reflect the new package structure.
+
+3. Move your Java files into the appropriate package directory.
+
+Here's how you can modify your project:
+
+1. Choose a package name. For example, let's use `com.onecompiler.economicindicators`.
+
+2. Update your main Java file (presumably `EconomicIndicatorsMain.java`) to include the package declaration:
+
+**File: /MakWigglz/java-OneCompiler/EconomicIndicatorsMain.java**
+```java
+package com.onecompiler.economicindicators;
+
+// ... rest of your code
+```
+
+3. Update the `build.gradle` file to reflect the new package structure:
+
+**File: /MakWigglz/java-OneCompiler/build.gradle**
+```gradle
+apply plugin: 'application'
+mainClassName = 'com.onecompiler.economicindicators.EconomicIndicatorsMain'
+
+run { standardInput = System.in }
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.json:json:20210307'
+}
+```
+
+4. Create the directory structure for your package:
+
+```
+src/
+  main/
+    java/
+      com/
+        onecompiler/
+          economicindicators/
+            EconomicIndicatorsMain.java
+```
+
+5. Move your Java files into this new directory structure.
+
+These changes will help organize your code better, even in a OneCompiler environment. It follows standard Java conventions and makes your project more maintainable and scalable.
+
+Remember, when you're working in OneCompiler, you might need to adjust how you create and manage multiple files and directories. Some online compilers have limitations on file system operations. However, structuring your code with packages is still a good practice, even if you have to work within the constraints of the online environment.
