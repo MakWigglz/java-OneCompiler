@@ -1,74 +1,68 @@
-package com.github.MakWigglz.economicIndicators;
-
+import java.net.URI;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class EconomicIndicatorsApp {
-    private static final String ALPHA_VANTAGE_API_URL = "https://www.alphavantage.co/query";
-    private static final String FRED_API_URL = "https://api.stlouisfed.org/fred/series/observations";
+    private static final String WORLD_BANK_API_URL = "http://api.worldbank.org/v2";
 
     public static void main(String[] args) {
         try {
-            Config config = Config.getInstance();
-            
             // Fetch GDP data
-            String gdpData = WorldBank.fetchData("NY.GDP.MKTP.CD", "US", 2013, 2023);
+            String gdpData = fetchWorldBankData("NY.GDP.MKTP.CD", "US", 2013, 2023);
             System.out.println("GDP Data: " + gdpData);
 
             // Fetch other economic indicators
-            String unemploymentData = WorldBank.fetchData("SL.UEM.TOTL.ZS", "US", 2013, 2023);
+            String unemploymentData = fetchWorldBankData("SL.UEM.TOTL.ZS", "US", 2013, 2023);
             System.out.println("Unemployment Data: " + unemploymentData);
 
-            String inflationData = WorldBank.fetchData("FP.CPI.TOTL.ZG", "US", 2013, 2023);
+            String inflationData = fetchWorldBankData("FP.CPI.TOTL.ZG", "US", 2013, 2023);
             System.out.println("Inflation Data: " + inflationData);
 
-            // Fetch stock market data for major indices
-            String spyData = fetchStockData("SPY", config.getAlphaVantageApiKey());
-            System.out.println("S&P 500 ETF Data: " + spyData);
-
-            String diaData = fetchStockData("DIA", config.getAlphaVantageApiKey());
-            System.out.println("Dow Jones Industrial Average ETF Data: " + diaData);
-
-            // Fetch FRED data
-            String gdpGrowthData = fetchFredData("GDP", "2013-01-01", "2023-12-31", config.getFredApiKey());
-            System.out.println("GDP Growth Rate Data: " + gdpGrowthData);
-
-            String unemploymentRateData = fetchFredData("UNRATE", "2013-01-01", "2023-12-31", config.getFredApiKey());
-            System.out.println("Unemployment Rate Data: " + unemploymentRateData);
-
-            String cpiData = fetchFredData("CPIAUCSL", "2013-01-01", "2023-12-31", config.getFredApiKey());
-            System.out.println("Consumer Price Index Data: " + cpiData);
         } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private static String fetchStockData(String symbol, String apiKey) throws Exception {
-        String urlString = String.format("%s?function=GLOBAL_QUOTE&symbol=%s&apikey=%s",
-                ALPHA_VANTAGE_API_URL, symbol, apiKey);
-        return fetchData(urlString);
-    }
-
-    private static String fetchFredData(String seriesId, String startDate, String endDate, String apiKey) throws Exception {
-        String urlString = String.format("%s?series_id=%s&observation_start=%s&observation_end=%s&api_key=%s&file_type=json",
-                FRED_API_URL, seriesId, startDate, endDate, apiKey);
-        return fetchData(urlString);
-    }
-
-    private static String fetchData(String urlString) throws Exception {
-        URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuilder content = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine);
+    public static String fetchWorldBankData(String indicator, String country, int startYear, int endYear) throws Exception {
+        String urlString = String.format("%s/country/%s/indicator/%s?date=%d:%d&format=json",
+                WORLD_BANK_API_URL, country, indicator, startYear, endYear);
+        try {
+            return fetchData(urlString);
+        } catch (Exception e) {
+            System.out.println("Error fetching data from World Bank API. Using mock data.");
+            return getMockData(indicator);
         }
-        in.close();
-        connection.disconnect();
-        return content.toString();
+    }
+
+    public static String fetchData(String urlString) throws Exception {
+        URI uri = new URI(urlString);
+        HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+        connection.setRequestMethod("GET");
+        
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            String inputLine;
+            StringBuilder content = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            return content.toString();
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    private static String getMockData(String indicator) {
+        switch (indicator) {
+            case "NY.GDP.MKTP.CD":
+                return "[{\"indicator\":{\"id\":\"NY.GDP.MKTP.CD\",\"value\":\"GDP (current US$)\"},\"country\":{\"id\":\"US\",\"value\":\"United States\"},\"value\":21433226000000,\"decimal\":0,\"date\":\"2023\"}]";
+            case "SL.UEM.TOTL.ZS":
+                return "[{\"indicator\":{\"id\":\"SL.UEM.TOTL.ZS\",\"value\":\"Unemployment, total (% of total labor force) (modeled ILO estimate)\"},\"country\":{\"id\":\"US\",\"value\":\"United States\"},\"value\":3.6,\"decimal\":1,\"date\":\"2023\"}]";
+            case "FP.CPI.TOTL.ZG":
+                return "[{\"indicator\":{\"id\":\"FP.CPI.TOTL.ZG\",\"value\":\"Inflation, consumer prices (annual %)\"},\"country\":{\"id\":\"US\",\"value\":\"United States\"},\"value\":4.1,\"decimal\":1,\"date\":\"2023\"}]";
+            default:
+                return "[]";
+        }
     }
 }
