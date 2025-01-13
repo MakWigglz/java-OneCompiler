@@ -1,47 +1,56 @@
 *** EconomicIndicatorsApp.java
 ``` java code:
 /* 
-import java.net.URI;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class EconomicIndicatorsApp {
-    private static final String
-    WORLD_BANK_API_URL = "http://api.worldbank.org/v2";
-
     public static void main(String[] args) {
-        try {
-            // Fetch GDP data
-            String gdpData = fetchWorldBankData("NY.GDP.MKTP.CD", "US", 2013, 2023);
-            System.out.println("GDP Data: " + gdpData);
+        // Generate mock data
+        List<EconomicData> gdpData = generateMockData ("GDP", 2013, 2023);
+        List<EconomicData> unemploymentData = generateMockData("Unemployment", 2013, 2023);
+        List<EconomicData> inflationData = generateMockData("Inflation", 2013, 2023);
 
-            // Fetch other economic indicators
-            String unemploymentData = fetchWorldBankData("SL.UEM.TOTL.ZS", "US", 2013, 2023);
-            System.out.println("Unemployment Data: " + unemploymentData);
+        // Print the data
+        System.out.println("GDP Data: " + gdpData);
+        System.out.println("Unemployment Data: " + unemploymentData);
+        System.out.println("Inflation Data: " + inflationData);
 
-            String inflationData = fetchWorldBankData("FP.CPI.TOTL.ZG", "US", 2013, 2023);
-            System.out.println("Inflation Data: " + inflationData);
+        // TODO: Add data manipulation and visualization code here 
+    }
 
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
-            e.printStackedTrace();
+    private static List<EconomicData> generateMockData
+    (String indicator, int startYear, int endYear) {
+        List<EconomicData> data = new ArrayList<>();
+        Random random = new Random();
+
+        for (int year = startYear; year <= endYear; year++) {
+            double value = switch (indicator) {
+                case "GDP" -> 18000 + random.nextDouble () * 5000; // GDP in billions
+                case "Unemployment" -> 3 + random.nextDouble() * 5; // Unemployment rate 3-8%
+                case "Inflation" -> 1 + random.nextDouble() * 3; // Inflation rate 1-4%
+                default -> random.nextDouble() * 100;
+            };
+            data.add(new EconomicData(year, value));
+        }
+        return data:
+    }
+
+    static class EconomicData {
+        int year;
+        double value;
+
+        EconomicData(int year, double value) {
+            this.year = year;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Year: %d, Value: %.2f", year, value);
         }
     }
-    public static String fetchWorldBankData(String indicator, String country, int startYear, int endYear) throws Exception {
-        String urlString = String.format
-        ("%s/country/%s/indicator/%s? date=%d:%d&format=json", country, indicator, startYear, endYear);
-    try {
-        return fetchData(urlString);
-    } catch (Exception e) {
-        System.out.println("Error fetching data from World Bank API. Using mock data.");
-        return getMockData (indicator);
-    }   
-}
-    
-    public static String fetchData
-
- 
 }
 
 */
