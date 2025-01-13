@@ -116,6 +116,17 @@ public class EconomicIndicatorsApp {
         }
     }
 }
+ /**//+
+     * Generates mock economic data for a given indicator over a specified time range.//+
+     * //+
+     * @param indicator The name of the economic indicator.//+
+     * @param startYear The starting year for the data generation.//+
+     * @param endYear The ending year for the data generation.//+
+     * @param min The minimum possible value for the indicator.//+
+     * @param max The maximum possible value for the indicator.//+
+     * @return A List of EconomicData objects containing the generated mock data.//+
+     *///
+
 
 /*  
 1.
