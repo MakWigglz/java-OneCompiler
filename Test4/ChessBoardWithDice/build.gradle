@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'ChessBoardWithDice'
+}
+
+dependencies {
+    // No additional dependencies needed for Swing
+}
