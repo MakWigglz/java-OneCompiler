@@ -1,57 +1,59 @@
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class ChessBoardWithDice extends JFrame {
-
-    private JPanel boardPanel;
-    private JButton diceButton;
-    private JLabel diceResultLabel;
-    private int diceValue;
-    private int tokenPosition; // 0-63 representing the board squares
-    private final JLabel token;
-    private String[] subjects = {
-        "Astronomy", "Biology", "Chemistry", "Physics", "Geology", "Mathematics", "Computer Science", "Artificial Intelligence",
-        "Medicine", "Psychology", "Engineering", "Environmental Science", "Climate Change", "Ecology", "Genetics", "Quantum Physics",
-        "Ancient History", "Medieval History", "Modern History", "World War I", "World War II", "The Cold War", "Political Science", "Economics",
-        "Sociology", "Anthropology", "Archaeology", "Geography", "History of Art", "History of Music", "Philosophy", "Religion",
-        "Poetry", "Drama", "Novels", "Short Stories", "Literary Criticism", "Painting", "Sculpture", "Architecture", "Music Theory",
-        "Film Studies", "Photography", "Dance", "Theatre", "The Internet", "Mobile Technology", "Space Exploration", "Renewable Energy",
-        "Nanotechnology", "Biotechnology", "The Printing Press", "The Steam Engine", "The Automobile", "The Airplane", "The Television",
-        "Mammals", "Birds", "Reptiles", "Amphibians", "Fish", "Insects", "Plants", "Fungi"
-    };
+    private final Map<String, String> subjectParagraphs;
+    private final JButton diceButton;
+    private final JPanel boardPanel;
+    private final JButton[][] boardSquares;
+    private int tokenX = 0;
+    private int tokenY = 0;
 
     public ChessBoardWithDice() {
+        subjectParagraphs = new HashMap<>();
+        loadParagraphs();
+        diceButton = new JButton("Roll Dice");
+        boardPanel = new JPanel(new GridLayout(8, 8));
+        boardSquares = new JButton[8][8];
+        initializeUI();
+    }
+
+    private void loadParagraphs() {
+        subjectParagraphs.put("0,0", "Paragraph for square 0,0");
+        subjectParagraphs.put("0,1", "Paragraph for square 0,1");
+        // Add more paragraphs as needed
+    }
+
+    private void initializeUI() {
         setTitle("Chess Board with Dice");
+        setSize(600, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Board Panel
-        boardPanel = new JPanel(new GridLayout(8, 8));
-        for (int i = 0; i < 64; i++) {
-            JPanel square = new JPanel(new BorderLayout());
-            square.setBackground((i + i / 8) % 2 == 0 ? Color.WHITE : Color.LIGHT_GRAY); // Checkerboard pattern
-            javax.swing.JLabel subjectLabel = new javax.swing.JLabel(subjects[i], SwingConstants.CENTER);
-            subjectLabel.setFont(new Font("Arial", Font.PLAIN, 10));
-            square.add(subjectLabel, BorderLayout.CENTER);
-            boardPanel.add(square);
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                JButton square = new JButton();
+                square.setBackground(getRandomColor());
+                String key = i + "," + j;
+                if (subjectParagraphs.containsKey(key)) {
+                    square.setToolTipText(subjectParagraphs.get(key));
+                }
+                boardSquares[i][j] = square;
+                boardPanel.add(square);
+            }
         }
-
-        // Token
-        token = new JLabel("T");  // Or use an image icon
-        token.setFont(new Font("Arial", Font.BOLD, 20));
-        tokenPosition = 0; // Start at the first square (index 0)
-        JPanel startSquare = (JPanel) boardPanel.getComponent(tokenPosition);
-        startSquare.add(token, BorderLayout.NORTH);
-
-        // Dice Panel
-        JPanel dicePanel = new JPanel();
-        diceButton = new JButton("Roll Dice");
-        diceResultLabel = new JLabel("Dice: ");
-        dicePanel.add(diceButton);
-        dicePanel.add(diceResultLabel);
 
         diceButton.addActionListener(new ActionListener() {
             @Override
@@ -61,45 +63,44 @@ public class ChessBoardWithDice extends JFrame {
         });
 
         add(boardPanel, BorderLayout.CENTER);
-        add(dicePanel, BorderLayout.SOUTH);
+        add(diceButton, BorderLayout.NORTH);
+        add(new CustomToken(), BorderLayout.SOUTH);
+    }
 
-        pack();
-        setVisible(true);
+    private Color getRandomColor() {
+        return new Color((int) (Math.random() * 0x1000000));
     }
 
     private void rollDice() {
-        Random random = new Random();
-        diceValue = random.nextInt(6) + 1; // Generates 1-6
-        diceResultLabel.setText("Dice: " + diceValue);
-
-        moveToken();
+        Random rand = new Random();
+        int diceRoll = rand.nextInt(6) + 1;
+        moveToken(diceRoll);
     }
 
-    private void moveToken() {
-        // Remove token from current position
-        JPanel currentSquare = (JPanel) boardPanel.getComponent(tokenPosition);
-        currentSquare.remove(token);
-        currentSquare.revalidate(); // Important: revalidate the panel
-        currentSquare.repaint();
+    private void moveToken(int steps) {
+        tokenX = (tokenX + steps) % 8;
+        tokenY = (tokenY + (tokenX + steps) / 8) % 8;
+        repaint();
+    }
 
-        // Calculate and update the new token position (handle wrapping around the board)
-        tokenPosition = (tokenPosition + diceValue) % 64; // Modulo to wrap around
-        if (tokenPosition < 0) {
-            tokenPosition = 63 + tokenPosition; // Handle negative modulo results if needed
+    private class CustomToken extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            int[] xPoints = {10, 20, 30, 20};
+            int[] yPoints = {30, 10, 30, 50};
+            Polygon tokenShape = new Polygon(xPoints, yPoints, xPoints.length);
+            g.setColor(Color.RED);
+            g.fillPolygon(tokenShape);
+            g.setColor(Color.BLACK);
+            g.drawString("Token", tokenX * 70 + 35, tokenY * 70 + 35);
         }
-
-        // Add token to the new position
-        JPanel newSquare = (JPanel) boardPanel.getComponent(tokenPosition);
-        newSquare.add(token, BorderLayout.NORTH);
-        newSquare.revalidate();
-        newSquare.repaint();
-
-        // Display the subject of the current square
-        String currentSubject = subjects[tokenPosition];
-        JOptionPane.showMessageDialog(this, "You landed on: " + currentSubject);
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ChessBoardWithDice());
+        SwingUtilities.invokeLater(() -> {
+            ChessBoardWithDice frame = new ChessBoardWithDice();
+            frame.setVisible(true);
+        });
     }
 }
